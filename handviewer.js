@@ -3191,6 +3191,8 @@ function undoIntoAuction() {
 function undoCard() {
   if (trick < 0) return false;
 
+  let regib = gibDivsShowing;
+
   removeGIBDivs();
 
   if (claimShowing) {
@@ -3250,6 +3252,8 @@ function undoCard() {
   if (exploreLine && playSeqPoint == wasPlaySeqPoint) {
     disableButton('undo', true);
   }
+
+  if (regib) gib();
 
   return true;
 }
@@ -3429,6 +3433,8 @@ function showTrickResult() {
 }
 
 function playCard(card, animate) {
+  let regib = gibDivsShowing;
+
   if (playingClient) {
     soundPlay(3);
   }
@@ -3560,6 +3566,8 @@ function playCard(card, animate) {
       annotDiv.innerHTML = cardAnnotation[trick][inTrick];
     }
   }
+
+  if (regib) gib();
 
   return true;
 }
@@ -4827,7 +4835,7 @@ function createScoreBoard() {
   }
 
   scoreBoardLogo = document.createElement('img');
-  scoreBoardLogo.src = 'bbobug.png';
+  scoreBoardLogo.src = 'https://www.bridgebase.com/tools/bbobug.png';
   scoreBoardLogo.style.position = 'absolute';
   scoreBoardTitleDiv.appendChild(scoreBoardLogo);
 
@@ -5755,8 +5763,8 @@ function removeGIBDivs(direction) {
     return;
   }
 
-  gibDivsShowing = false;
   var seat = interpretSeatString(direction);
+  if (seat == -1) gibDivsShowing = false;
 
   var div = document.getElementById('theDiv');
   for (suit = 0; suit < 4; suit++) {
@@ -5895,8 +5903,6 @@ function gibDataReceived(data) {
 }
 
 function gibDataReceived2(results) {
-  console.log(results);
-
   var div = document.getElementById('theDiv');
 
   removeGIBDivs();
@@ -5905,89 +5911,29 @@ function gibDataReceived2(results) {
 
   // is current player same parity as declarer?
   let curplayer = "SWNE".indexOf(results.player);
-  let isdeclaring = (curplayer + declarer)%2 == 0;
-  let isns = curplayer%2==0;
-
-  for (let i=0; i<results.plays.length; i++) {
-    let suit = suitchars.indexOf(results.plays[i].suit);
-    let card = cardchars.indexOf(results.plays[i].rank);
-    let tricks = results.plays[i].score + (isns ? results.tricks.ns : results.tricks.ew);
-
-    if (!isdeclaring) tricks = 13 - tricks;
-
-    addGibDiv(div,suit,card,tricks,goal);
-
-    for (let j=0; j<results.plays[i].equals.length; j++) {
-      let card2 = cardchars.indexOf(results.plays[i].equals[j]);
-
-      addGibDiv(div,suit,card2,tricks,goal);
-    }
-
-    
-  }
-  /*
-  removeGIBDivs();
   
-  for (let i = 0; i < results.length; i++) {
-    let [cardstring, tricks] = results[i];
+  if (isHandShowing(curplayer)) {
+    let isdeclaring = (curplayer + declarer)%2 == 0;
+    let isns = curplayer%2==0;
 
-    let suit = suitchars.indexOf(cardstring[0]);
-    let card = cardchars.indexOf(cardstring[1]);
-    tricks = parseInt(tricks);
-    if (declarer == 1 || declarer == 3) {
-      tricks = 13 - tricks;
-    }
+    for (let i=0; i<results.plays.length; i++) {
+      let suit = suitchars.indexOf(results.plays[i].suit);
+      let card = cardchars.indexOf(results.plays[i].rank);
+      let tricks = results.plays[i].score + (isns ? results.tricks.ns : results.tricks.ew);
 
-    // Handle equivalent cards
-    let nextCard = -1;
-    if (i < results.length-1) {
-      let nextCardString = results[i+1][0];
-      if (nextCardString[0] == cardstring[0]) {
-        nextCard = cardchars.indexOf(nextCardString[1]);
-      }
-    }
+      if (!isdeclaring) tricks = 13 - tricks;
 
-    for (c = card; c > nextCard; c--) {
-      if (deck[suit][c] >= 0 && deck[suit][c] != whosTurn) {
-        continue;
-      }
-      if (deck[suit][c] < 0 && deck[suit][c] + 4 != whosTurn) {  // played card belongs to someone else?  note that deck[suit][c] is set to whosTurn-4 in playCard(..) once a card is played
-        continue;
-      }
-      if (deck[suit][c] >= 0) {
-        if (gibDivs[suit][c].parentNode != div) {
-          div.appendChild(gibDivs[suit][c]);
-          if (tricks >= goal) {
-            gibDivs[suit][c].style.background = '#B0D57E';
-            gibDivs[suit][c].style.color = '#000000';
-            if (tricks == goal) {
-              div.lastChild.innerHTML = '=';
-            } else {
-              div.lastChild.innerHTML = tricks - goal;
-            }
-          } else {
-            div.lastChild.style.background = '#CB0000';
-            div.lastChild.style.color = '#FFFFFF';
-            div.lastChild.innerHTML = goal - tricks;
-          }
-        }
-      } else {
-        var inThisTrick = false;
-        for (var it = 0; it <= inTrick; it++) {
-          if (suitPlayed[trick][it] == suit && rankPlayed[trick][it] == c) {
-            inThisTrick = true;
-            break;
-          }
-        }
+      addGibDiv(div,suit,card,tricks,goal);
 
-        if (inThisTrick == true) {
-          break;
-        }
+      for (let j=0; j<results.plays[i].equals.length; j++) {
+        let card2 = cardchars.indexOf(results.plays[i].equals[j]);
+
+        addGibDiv(div,suit,card2,tricks,goal);
       }
+
+      
     }
   }
- 
-  */
   manageGIBDivs();
 }
 
@@ -6025,7 +5971,6 @@ function manageGIBButton() {
     contractLevel == -1 ||
     passes < 3 ||
     trick > 11 ||
-    claimShowing ||
     (seatKibitzed >= 0 && whosTurn != seatKibitzed && whosTurn != dummy)
   ) {
     disable = true;
@@ -7054,9 +6999,9 @@ function highlightCard(suit, card, highlight) {
 
   if (picturesOfCards || (getDeal && deck[suit][card] == -10)) {
     if (highlight) {
-      cardImageDiv[suit][card].image.src = 'cardbghi.gif';
+      cardImageDiv[suit][card].image.src = 'https://www.bridgebase.com/tools/cardbghi.gif';
     } else {
-      cardImageDiv[suit][card].image.src = 'cardbg.gif';
+      cardImageDiv[suit][card].image.src = 'https://www.bridgebase.com/tools/cardbg.gif';
     }
   } else {
     var seat = deck[suit][card];
@@ -7316,7 +7261,7 @@ function createCardBackDiv() {
   disableSelection(div);
   div.style.position = 'absolute';
   div.image = document.createElement('img');
-  div.image.src = 'cardback.gif';
+  div.image.src = 'https://www.bridgebase.com/tools/cardback.gif';
   div.image.style.width = '100%';
   div.image.style.height = '100%';
   div.appendChild(div.image);
@@ -7334,7 +7279,7 @@ function createCardImageDiv(suit, card) {
   div.image.style.position = 'absolute';
   div.image.style.top = 0;
   div.image.style.left = 0;
-  div.image.src = 'cardbg.gif';
+  div.image.src = 'https://www.bridgebase.com/tools/cardbg.gif';
   div.appendChild(div.image);
   div.onmouseover = function () {
     mouseOverCardImage(this);
