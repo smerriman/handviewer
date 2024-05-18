@@ -5995,8 +5995,8 @@ function addGibDiv(div,suit,card,tricks,goal) {
   if (gibDivs[suit][card].parentNode != div) {
     div.appendChild(gibDivs[suit][card]);
     if (tricks >= goal) {
-      gibDivs[suit][c].style.background = '#B0D57E';
-      gibDivs[suit][c].style.color = '#000000';    
+      gibDivs[suit][card].style.background = '#B0D57E';
+      gibDivs[suit][card].style.color = '#000000';    
       if (tricks == goal) {
         div.lastChild.innerHTML = '=';
       } else {
