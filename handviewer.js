@@ -3062,7 +3062,7 @@ function gib() {
   var result = nextPlays(pbn,suitchars.charAt(trump),pbnplays);
   gibThinking = false;
   manageGIBButton();
-  gibDataReceived(result);
+  gibDataReceived(result); 
 }
 
 function advanceCardByCard() {
