@@ -3019,49 +3019,16 @@ function gib() {
     return;
   }
 
-  var gibButton = document.getElementById('gibButton');
   gibThinking = true;
   manageGIBButton();
 
-  var seat;
   var suit;
   var card;
-  var toGIB = '';
 
-  for (seat = 0; seat < 4; seat++) {
-    toGIB += seats[seat].charAt(0).toLowerCase() + ' ';
-    for (suit = 3; suit >= 0; suit--) {
-      for (card = 12; card >= 0; card--) {
-        if (deck[suit][card] == seat || deck[suit][card] == seat - 4) {
-          toGIB += cardchars.charAt(card);
-        }
-      }
-      if (suit > 0) {
-        toGIB += '.';
-      }
-    }
-    toGIB += '\n';
-  }
   var leader = declarer + 1;
   if (leader == 4) {
     leader = 0;
   }
-  toGIB +=
-    seats[leader].charAt(0).toLowerCase() + ' ' + suitchars.charAt(trump).toLowerCase() + '\n';
-  var t = 0;
-  var it = 0;
-  while (100 * t + it <= 100 * trick + inTrick) {
-    toGIB +=
-      suitchars.charAt(suitPlayed[t][it]).toLowerCase() +
-      cardchars.charAt(rankPlayed[t][it]) +
-      '\n';
-    it++;
-    if (it == 4) {
-      it = 0;
-      t++;
-    }
-  }
-
 
   var pbn = '';
   pbn += seats[leader].charAt(0)+':';
@@ -3095,7 +3062,7 @@ function gib() {
   var result = nextPlays(pbn,suitchars.charAt(trump),pbnplays);
   gibThinking = false;
   manageGIBButton();
-  gibDataReceived2(result);
+  gibDataReceived(result);
 
   return toGIB;
 }
@@ -5820,89 +5787,7 @@ function manageGIBDivs() {
   }
 }
 
-function gibDataReceived(data) {
-  removeGIBDivs();
-
-  var div = document.getElementById('theDiv');
-  var goal = contractLevel + 6;
-
-  if (data.length > 0) {
-    gibDivsShowing = true;
-  }
-
-  let results = [...data].filter(d => d.nodeName == 'r').map(el => el.getAttribute('g').split(' ').slice(0, 2)).sort(
-      ([r1], [r2]) => {
-        // Sort by suit
-        if (r1[0] != r2[0]) {
-          return r1.localeCompare(r2);
-        }
-        // sort by rank within suit
-        return cardchars.indexOf(r2[1]) - cardchars.indexOf(r1[1]);
-      }
-  );
-
-  for (let i = 0; i < results.length; i++) {
-    let [cardstring, tricks] = results[i];
-
-    let suit = suitchars.indexOf(cardstring[0]);
-    let card = cardchars.indexOf(cardstring[1]);
-    tricks = parseInt(tricks);
-    if (declarer == 1 || declarer == 3) {
-      tricks = 13 - tricks;
-    }
-
-    // Handle equivalent cards
-    let nextCard = -1;
-    if (i < results.length-1) {
-      let nextCardString = results[i+1][0];
-      if (nextCardString[0] == cardstring[0]) {
-        nextCard = cardchars.indexOf(nextCardString[1]);
-      }
-    }
-
-    for (c = card; c > nextCard; c--) {
-      if (deck[suit][c] >= 0 && deck[suit][c] != whosTurn) {
-        continue;
-      }
-      if (deck[suit][c] < 0 && deck[suit][c] + 4 != whosTurn) {  // played card belongs to someone else?  note that deck[suit][c] is set to whosTurn-4 in playCard(..) once a card is played
-        continue;
-      }
-      if (deck[suit][c] >= 0) {
-        if (gibDivs[suit][c].parentNode != div) {
-          div.appendChild(gibDivs[suit][c]);
-          if (tricks >= goal) {
-            gibDivs[suit][c].style.background = '#B0D57E';
-            gibDivs[suit][c].style.color = '#000000';
-            if (tricks == goal) {
-              div.lastChild.innerHTML = '=';
-            } else {
-              div.lastChild.innerHTML = tricks - goal;
-            }
-          } else {
-            div.lastChild.style.background = '#CB0000';
-            div.lastChild.style.color = '#FFFFFF';
-            div.lastChild.innerHTML = goal - tricks;
-          }
-        }
-      } else {
-        var inThisTrick = false;
-        for (var it = 0; it <= inTrick; it++) {
-          if (suitPlayed[trick][it] == suit && rankPlayed[trick][it] == c) {
-            inThisTrick = true;
-            break;
-          }
-        }
-
-        if (inThisTrick == true) {
-          break;
-        }
-      }
-    }
-  }
-  manageGIBDivs();
-}
-
-function gibDataReceived2(results) {
+function gibDataReceived(results) {
   var div = document.getElementById('theDiv');
 
   removeGIBDivs();
@@ -5993,16 +5878,6 @@ function processXMLData(data) {
   } else {
     x = data.getElementsByTagName('sc_bm');
     if (x.length > 0) {
-      if (!gibThinking) {
-        return;
-      }
-      gibThinking = false;
-      manageGIBButton();
-      var requestID = x[0].getAttribute('request_id');
-
-      if (parseInt(requestID) == 100 * trick + inTrick && (!vugraphClient || connected)) {
-        gibDataReceived(x[0].childNodes);
-      }
     } else {
       x = data.getElementsByTagName('lin');
 
