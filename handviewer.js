@@ -3063,8 +3063,6 @@ function gib() {
   gibThinking = false;
   manageGIBButton();
   gibDataReceived(result);
-
-  return toGIB;
 }
 
 function advanceCardByCard() {
