@@ -1,0 +1,166 @@
+<!-- Copyright 2009-2014 Bridge Base Online, Ltd. www.bridgebase.com All Rights Reserved -->
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+    <link rel="stylesheet" href="https://www.bridgebase.com/tools/hvstyles.css" type="text/css" />
+    <link
+      rel="stylesheet"
+      href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/themes/base/jquery-ui.css"
+    />
+    <script
+      src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"
+      type="text/javascript"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://www.bridgebase.com/js/jquery.hoverIntent.minified.js"
+    ></script>
+
+    <script>
+        var Module = {};
+    </script>
+    <script src="out.js"></script>
+    <script src="dds.js"></script>    
+
+    <link rel="stylesheet" href="https://www.bridgebase.com/css/bbo_public.css" />
+    <script type="text/javascript" src="https://www.bridgebase.com/js/bbo_public.js"></script>
+
+    <script type="text/javascript">
+      $(document).ready(function () {
+        var hovercfg = {
+          interval: 300,
+          sensitivity: 6,
+          timeout: 0,
+          over: function (e) {
+            bbo_profile(e, 'BBO:' + this.innerHTML)
+          },
+          out: function () {},
+        }
+
+        if (gup('bbo').toUpperCase() == 'Y') $('.nameTextDivStyle').hoverIntent(hovercfg)
+      })
+    </script>
+  </head>
+  <body
+    bgcolor="#FFFFFF"
+    leftMargin="0"
+    topMargin="0"
+    rightMargin="0"
+    bottomMargin="0"
+    onclick="hideContextMenu(event); hideContextMenu(event,true);"
+    onorientationchange="respondToResize();"
+    onkeydown="handleKeyDown(event);"
+    style="overflow: hidden"
+    onload="documentLoaded();"
+  >
+    <noscript>
+      <br />
+      <center>
+        <font face="Arial"
+          >JavaScript is disabled in your web browser. In order to use this software you must enable
+          Javascript and refresh this page.</font
+        >
+      </center>
+    </noscript>
+    <div class="mainDivStyle" id="theDiv" oncontextmenu="contextMenuRequest(event); return false;">
+      <div class="editorMenuDivStyle" id="editorMenuDiv" style="visibility: hidden">
+        <table style="font-size: 18; border: 1px solid black" bgcolor="#99CCCC">
+          <tr>
+            <td>
+              <input type="checkbox" id="north" onclick="editorMenuHandChanged()" />&nbsp;Include
+              North<br />
+              <input type="checkbox" id="south" onclick="editorMenuHandChanged()" />&nbsp;Include
+              South<br />
+              <input type="checkbox" id="east" onclick="editorMenuHandChanged()" />&nbsp;Include
+              East<br />
+              <input type="checkbox" id="west" onclick="editorMenuHandChanged()" />&nbsp;Include
+              West<br />
+              <input
+                type="checkbox"
+                id="bidding"
+                onclick="editorMenuBiddingChanged()"
+              />&nbsp;Include Bidding<br />
+            </td>
+            <td id="dealerTD" style="padding-left: 20">
+              <b>Dealer</b><br />
+              <input type="radio" id="ndeals" name="dealer" />&nbsp;North<br />
+              <input type="radio" id="sdeals" name="dealer" />&nbsp;South<br />
+              <input type="radio" id="edeals" name="dealer" />&nbsp;East<br />
+              <input type="radio" id="wdeals" name="dealer" />&nbsp;West<br />
+            </td>
+            <td id="vulTD" style="padding-left: 20">
+              <b>Vulnerability</b><br />
+              <input type="radio" id="none" name="vul" />&nbsp;None<br />
+              <input type="radio" id="both" name="vul" />&nbsp;Both<br />
+              <input type="radio" id="ns" name="vul" />&nbsp;NS<br />
+              <input type="radio" id="ew" name="vul" />&nbsp;EW<br />
+            </td>
+          </tr>
+          <tr>
+            <td colspan="3" style="padding-top: 20">
+              <center>
+                <input
+                  type="button"
+                  id="createButton"
+                  value="Create Bridge Diagram"
+                  onclick="editorMenuCreateClicked()"
+                  style="font-size: 22; overflow: visible; padding-left: 5; padding-right: 5"
+                />
+              </center>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div class="editorDivStyle" id="editorDiv"></div>
+    <div class="annotDivStyle" id="annotDiv"></div>
+    <div class="buttonDivStyle" id="buttonDiv" oncontextmenu="return false;">
+      <input type="button" value="New" onclick="newDeal()" id="newButton" class="buttonStyle" />
+      <input
+        type="button"
+        value="Shuffle"
+        onclick="shuffle()"
+        id="shuffleButton"
+        class="buttonStyle"
+      />
+      <input
+        type="button"
+        value="Rewind"
+        onclick="rewind()"
+        id="rewindButton"
+        class="buttonStyle"
+      />
+      <input type="button" value="Previous" onclick="undo()" id="undoButton" class="buttonStyle" />
+      <input type="button" value="Next" onclick="next()" id="nextButton" class="buttonStyle" />
+      <input
+        type="button"
+        value="Options"
+        onclick="options()"
+        id="optionsButton"
+        class="buttonStyle"
+      />
+      <input type="button" value="GIB" onclick="gib()" id="gibButton" class="buttonStyle" />
+      <input type="button" value="Play" onclick="play()" id="playButton" class="buttonStyle" />
+      <a href="https://www.bridgebase.com" target="_blank">
+        <img
+          src="https://www.bridgebase.com/assets/images/logo-bbo-2020-horizontal-transparent-160.png"
+          height="15px"
+          vspace="2"
+          border="0"
+          id="logoImage"
+          class="logoImageStyle"
+        />
+      </a>
+    </div>
+  </body>
+  <!-- <script type="text/javascript" src="./src/hv/jsbig.js?cb=1"></script> -->
+  <script>
+
+</script>
+  <script type="text/javascript" src="handviewer.js?cb=1"></script>
+  
+</html>
