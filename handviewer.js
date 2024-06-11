@@ -5799,7 +5799,7 @@ function gibDataReceived(results) {
     let isdeclaring = (curplayer + declarer)%2 == 0;
     let isns = curplayer%2==0;
 
-    for (let i=0; i<results.plays.length; i++) {
+    if (!!results.plays) for (let i=0; i<results.plays.length; i++) {
       let suit = suitchars.indexOf(results.plays[i].suit);
       let card = cardchars.indexOf(results.plays[i].rank);
       let tricks = results.plays[i].score + (isns ? results.tricks.ns : results.tricks.ew);
